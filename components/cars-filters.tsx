@@ -61,12 +61,12 @@ export function CarsFilters() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 p-9 lg:p-6 border rounded-lg bg-card- space-x-0 lg:space-x-3">
       <Card>
         <CardHeader>
           <CardTitle>Price Range</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <Slider
             value={filters.priceRange}
             onValueChange={(value) => updateFilters({ priceRange: value as [number, number] })}
