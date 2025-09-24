@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Heart, MapPin, Fuel, Calendar, Settings, Eye, Compass as Compare } from "lucide-react"
+import { Heart, MapPin, Fuel, Calendar, Settings, Eye, Compass as Compare, Shield, Star, Zap } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 
@@ -45,7 +45,9 @@ export function CarsGrid() {
       dealer: {
         name: "Premium Motors",
         verified: true,
+        rating: 4.8,
       },
+      badges: ["hot-deal"],
     },
     {
       id: "2",
@@ -64,7 +66,9 @@ export function CarsGrid() {
       dealer: {
         name: "Luxury Car Center",
         verified: true,
+        rating: 4.9,
       },
+      badges: ["verified-dealer"],
     },
     {
       id: "3",
@@ -83,7 +87,9 @@ export function CarsGrid() {
       dealer: {
         name: "Honda Dealership",
         verified: true,
+        rating: 4.7,
       },
+      badges: [],
     },
     {
       id: "4",
@@ -102,7 +108,9 @@ export function CarsGrid() {
       dealer: {
         name: "Mercedes Center",
         verified: true,
+        rating: 4.6,
       },
+      badges: [],
     },
     {
       id: "5",
@@ -121,7 +129,9 @@ export function CarsGrid() {
       dealer: {
         name: "Audi Specialist",
         verified: true,
+        rating: 4.5,
       },
+      badges: [],
     },
     {
       id: "6",
@@ -140,21 +150,23 @@ export function CarsGrid() {
       dealer: {
         name: "Nissan Motors",
         verified: true,
+        rating: 4.4,
       },
+      badges: [],
     },
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 space-x-0 lg:space-x-3">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Cars for Sale</h2>
-          <p className="text-muted-foreground">{carsForSale.length} cars found</p>
+          <h2 className="text-3xl font-bold text-foreground">Premium Cars for Sale</h2>
+          <p className="text-muted-foreground">{carsForSale.length} verified listings found</p>
         </div>
         <div className="flex items-center space-x-4">
           {compareList.length > 0 && (
             <Link href={`/compare?cars=${compareList.join(",")}`}>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="animate-pulse-glow bg-transparent">
                 <Compare className="h-4 w-4 mr-2" />
                 Compare ({compareList.length})
               </Button>
@@ -162,7 +174,7 @@ export function CarsGrid() {
           )}
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">Sort by:</span>
-            <select className="text-sm border rounded px-2 py-1">
+            <select className="text-sm border rounded-lg px-3 py-2 bg-background">
               <option>Price: Low to High</option>
               <option>Price: High to Low</option>
               <option>Year: Newest First</option>
@@ -172,19 +184,42 @@ export function CarsGrid() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {carsForSale.map((car) => (
-          <Card key={car.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+        {carsForSale.map((car, index) => (
+          <Card
+            key={car.id}
+            className="overflow-hidden car-card-hover animate-slide-up"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
             <div className="relative">
               <img src={car.images[0] || "/placeholder.svg"} alt={car.title} className="w-full h-48 object-cover" />
+
               <div className="absolute top-4 left-4">
-                <Badge variant="default">${car.price_sale.toLocaleString()}</Badge>
+                <Badge className="bg-primary text-primary-foreground font-bold text-lg px-3 py-1">
+                  ${car.price_sale.toLocaleString()}
+                </Badge>
               </div>
-              <div className="absolute top-4 right-4 flex space-x-2">
+
+              <div className="absolute top-4 right-4 flex flex-col space-y-2 ">
+                {car.badges?.includes("hot-deal") && (
+                  <Badge className="hot-deal">
+                    <Zap className="h-3 w-3 mr-1" />
+                    Hot Deal
+                  </Badge>
+                )}
+                {car.dealer.verified && (
+                  <Badge className="verified-dealer">
+                    <Shield className="h-3 w-3 mr-1 " />
+                    Verified
+                  </Badge>
+                )}
+              </div>
+
+              <div className="absolute bottom-4 right-4 flex space-x-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`bg-background/80 hover:bg-background ${favorites.includes(car.id) ? "text-red-500" : ""}`}
+                  className={`bg-background/90 hover:bg-background backdrop-blur-sm ${favorites.includes(car.id) ? "text-red-500" : ""}`}
                   onClick={() => toggleFavorite(car.id)}
                 >
                   <Heart className={`h-4 w-4 ${favorites.includes(car.id) ? "fill-current" : ""}`} />
@@ -192,7 +227,7 @@ export function CarsGrid() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`bg-background/80 hover:bg-background ${
+                  className={`bg-background/90 hover:bg-background backdrop-blur-sm ${
                     compareList.includes(car.id) ? "text-primary" : ""
                   }`}
                   onClick={() => toggleCompare(car.id)}
@@ -206,66 +241,68 @@ export function CarsGrid() {
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">{car.title}</h3>
-                  <div className="flex items-center text-sm text-muted-foreground mb-2">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {car.location}
+                  <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-2">{car.title}</h3>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {car.location}
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 mr-1 text-yellow-500 fill-current" />
+                      {car.dealer.rating}
+                    </div>
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
+                  {/* <div className="flex items-center text-sm text-muted-foreground">
                     <span className="font-medium">{car.dealer.name}</span>
-                    {car.dealer.verified && (
-                      <Badge variant="outline" className="ml-2 text-xs">
-                        Verified
-                      </Badge>
-                    )}
+                    {car.dealer.verified && <Shield className="h-4 w-4 ml-2 text-success" />}
+                  </div> */}
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 text-sm bg-muted/30 rounded-lg p-3">
+                  <div className="flex flex-col items-center text-center">
+                    <Calendar className="h-4 w-4 mb-1 text-muted-foreground" />
+                    <span className="font-medium">{car.year}</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <Fuel className="h-4 w-4 mb-1 text-muted-foreground" />
+                    <span className="font-medium capitalize">{car.fuel_type}</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <Settings className="h-4 w-4 mb-1 text-muted-foreground" />
+                    <span className="font-medium capitalize">{car.transmission}</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span>{car.year}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Fuel className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span className="capitalize">{car.fuel_type}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Settings className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span className="capitalize">{car.transmission}</span>
-                  </div>
-                </div>
-
-                <div className="text-sm text-muted-foreground">
-                  <span>{car.mileage.toLocaleString()} miles</span>
-                </div>
+                {/* <div className="text-sm text-muted-foreground">
+                  <span className="font-medium">{car.mileage.toLocaleString()} miles</span>
+                </div> */}
 
                 <div className="flex flex-wrap gap-2">
                   {car.features.slice(0, 3).map((feature, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
+                    <Badge key={index} variant="outline" className="text-xs bg-primary/5 border-primary/20">
                       {feature}
                     </Badge>
                   ))}
                   {car.features.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs bg-accent/5 border-accent/20">
                       +{car.features.length - 3} more
                     </Badge>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t">
-                  <div>
-                    <p className="text-xl font-bold text-foreground">${car.price_sale.toLocaleString()}</p>
-                  </div>
+                 
                   <div className="flex space-x-2">
                     <Link href={`/cars/${car.id}`}>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="hover:bg-primary/5 bg-transparent">
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Button>
                     </Link>
                     <Link href={`/cars/${car.id}/buy`}>
-                      <Button size="sm">Buy Now</Button>
+                      <Button  variant="outline" size="sm" className="bg-primary text-primary-foreground font-bold  px-3 py-1">
+                        Buy Now
+                      </Button>
                     </Link>
                   </div>
                 </div>
@@ -275,17 +312,22 @@ export function CarsGrid() {
         ))}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center space-x-2 pt-8">
-        <Button variant="outline" disabled>
+      <div className="flex justify-center items-center space-x-2 pt-8">
+        <Button variant="outline" disabled className="rounded-lg bg-transparent">
           Previous
         </Button>
-        <Button variant="outline" className="bg-primary text-primary-foreground">
+        <Button variant="outline" className="bg-primary text-primary-foreground rounded-lg">
           1
         </Button>
-        <Button variant="outline">2</Button>
-        <Button variant="outline">3</Button>
-        <Button variant="outline">Next</Button>
+        <Button variant="outline" className="rounded-lg hover:bg-primary/5 bg-transparent">
+          2
+        </Button>
+        <Button variant="outline" className="rounded-lg hover:bg-primary/5 bg-transparent">
+          3
+        </Button>
+        <Button variant="outline" className="rounded-lg hover:bg-primary/5 bg-transparent">
+          Next
+        </Button>
       </div>
     </div>
   )
